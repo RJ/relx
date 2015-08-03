@@ -48,6 +48,7 @@ main(Args) ->
     main([], Args).
 
 main(ApiOptions, Args) ->
+    io:format("NEW\n"),
     OptSpecList = opt_spec_list(),
     Result = case getopt:parse(OptSpecList, Args) of
                  {ok, {Options, NonOptions}} ->
@@ -175,6 +176,7 @@ do(RootDir, RelName, RelVsn, Goals, LibDirs, LogLevel, OutputDir, Overrides, Con
 do(Opts, NonOpts) ->
     case rlx_cmd_args:args2state(Opts, NonOpts) of
         {ok, State} ->
+            io:format("STATE:\n~p\n",[State]),
             run_relx_process(State);
         Error={error, _} ->
             Error
@@ -234,6 +236,7 @@ format_error({error, {Module, Reason}}) ->
 %%============================================================================
 run_relx_process(State) ->
     ec_cmd_log:info(rlx_state:log(State), "Starting relx build process ..."),
+    %io:format("FORMAT STATE = ~p\n",[rlx_state:format(State)]),
     ec_cmd_log:debug(rlx_state:log(State),
                      fun() ->
                              rlx_state:format(State)

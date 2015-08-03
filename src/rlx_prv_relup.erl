@@ -55,6 +55,8 @@ do(State) ->
     Release0 = rlx_state:get_realized_release(State, RelName, RelVsn),
     make_relup(State, Release0).
 
+format_error({missing_appup, AppName}) ->
+    io_lib:format("Missing ~s.appup - application will be restarted!",[AppName]);
 format_error({relup_generation_error, CurrentName, UpFromName}) ->
     io_lib:format("Unknown internal release error generating the relup from ~s to ~s",
                   [UpFromName, CurrentName]);
@@ -72,7 +74,9 @@ format_error({relup_script_generation_error,
         "in both the current release and the release to upgrade from.";
 format_error({relup_script_generation_error, Module, Errors}) ->
     ["Errors generating relup \n",
-     rlx_util:indent(2), Module:format_error(Errors)].
+     rlx_util:indent(2), Module:format_error(Errors)];
+format_error(W) ->
+    io_lib:format("Unformatted error: ~p",[W]).
 
 make_relup(State, Release) ->
     Vsn = rlx_state:upfrom(State),
@@ -130,12 +134,12 @@ make_upfrom_script(State, Release, UpFrom) ->
                silent],
     CurrentRel = strip_rel(rlx_release:relfile(Release)),
     UpFromRel = strip_rel(rlx_release:relfile(UpFrom)),
-    ec_cmd_log:debug(rlx_state:log(State),
-                  "systools:make_relup(~p, ~p, ~p, ~p)",
+    ec_cmd_log:info(rlx_state:log(State),
+                  "rlx_relup:make_relup(~p, ~p, ~p, ~p)",
                   [CurrentRel, UpFromRel, UpFromRel, Options]),
     case rlx_util:make_script(Options,
                      fun(CorrectOptions) ->
-                             systools:make_relup(CurrentRel, [UpFromRel], [UpFromRel], CorrectOptions)
+                             rlx_relup:make_relup(CurrentRel, [UpFromRel], [UpFromRel], CorrectOptions)
                      end) of
         ok ->
             ec_cmd_log:error(rlx_state:log(State),
