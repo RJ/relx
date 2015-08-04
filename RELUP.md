@@ -40,3 +40,14 @@ from the appup list and add to the Deps in the instructions, eg assuming
 irccloud_user and irc_db are being updated in this appup:
 
 {load_module, irccloud_user, [irc_db]}.
+
+### misc observations
+
+when downgrading an app, such that it (and nothing else) no longer needs
+a certain dep, that dep was stopped first, before the app was upgraded
+(in the relup). this could lead to old code calling into an app that's
+been stopped, during the release ugprade process?
+(hackney downgrade + ssl_verify_hostname).
+
+
+
